@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'test/unit'
-require 'lib/flickraw'
+require File.join(%W[#{File.dirname(__FILE__)} .. .. lib flickraw])
 
 class Basic < Test::Unit::TestCase
   def test_request
@@ -16,7 +16,7 @@ class Basic < Test::Unit::TestCase
       assert_kind_of FlickRaw::Request, eval("flickr." + o)
     }
   end
-  
+
   def test_known
     known_methods = %w{
       flickr.activity.userComments
@@ -201,19 +201,19 @@ class Basic < Test::Unit::TestCase
     assert_instance_of FlickRaw::ResponseList, found_methods
     assert_equal known_methods, found_methods.to_a
   end
-  
+
   def test_list
     list = flickr.photos.getRecent :per_page => '10'
     assert_instance_of FlickRaw::ResponseList, list
     assert_equal(list.size, 10)
   end
-  
+
   def people(user)
     assert_equal "41650587@N02", user.id
     assert_equal "41650587@N02", user.nsid
     assert_equal "ruby_flickraw", user.username
   end
-  
+
   def photo(info)
     assert_equal "3839885270", info.id
     assert_equal "41650587@N02", info.owner
@@ -230,42 +230,42 @@ class Basic < Test::Unit::TestCase
     assert_equal 1, list.size
     assert_equal "3829093290", list[0].id
   end
-  
+
   # groups
   def test_groups_getInfo
     info = flickr.groups.getInfo :group_id => "51035612836@N01"
     assert_equal "51035612836@N01", info.id
     assert_equal "Flickr API", info.name
   end
-  
+
   def test_groups_search
     list = flickr.groups.search :text => "Flickr API"
     assert list.any? {|g| g.nsid == "51035612836@N01"}
   end
-  
+
   # panda
   def test_panda_getList
     pandas = flickr.panda.getList
     assert_equal ["ling ling", "hsing hsing", "wang wang"], pandas.to_a
   end
-  
+
   def test_panda_getList
     pandas = flickr.panda.getPhotos :panda_name => "wang wang"
     assert_equal "wang wang", pandas.panda
     assert_respond_to pandas[0], :title
   end
-  
+
   # people
   def test_people_findByEmail
     user = flickr.people.findByEmail :find_email => "flickraw@yahoo.com"
     people user
   end
-    
+
   def test_people_findByUsername
     user = flickr.people.findByUsername :username => "ruby_flickraw"
     people user
   end
-  
+
   def test_people_getInfo
     user = flickr.people.getInfo :user_id => "41650587@N02"
     people user
@@ -275,12 +275,12 @@ class Basic < Test::Unit::TestCase
     assert_equal "http://m.flickr.com/photostream.gne?id=41630239", user.mobileurl
     assert_equal 0, user.ispro
   end
-  
+
   def test_people_getPublicGroups
     groups = flickr.people.getPublicGroups :user_id => "41650587@N02"
     assert groups.to_a.empty?
   end
-  
+
   def test_people_getPublicPhotos
     info = flickr.people.getPublicPhotos :user_id => "41650587@N02"
     assert_equal 1, info.size
@@ -289,7 +289,7 @@ class Basic < Test::Unit::TestCase
     assert_equal 1, info.page
     photo info[0]
   end
-  
+
   # photos
   def test_photos_getInfo
     id = "3839885270"
@@ -310,7 +310,7 @@ class Basic < Test::Unit::TestCase
     assert_equal "Flickraw", info.owner["realname"]
     assert_equal %w{cat pet}, info.tags.map {|t| t.to_s}.sort
   end
-  
+
   def test_photos_getExif
     info = flickr.photos.getExif :photo_id => "3839885270"
     assert_equal "Canon DIGITAL IXUS 55", info.exif.find {|f| f.tag == "Model"}.raw
@@ -319,18 +319,18 @@ class Basic < Test::Unit::TestCase
     assert_equal "1600", info.exif.find {|f| f.tag == "ImageWidth"}.raw
     assert_equal "1200", info.exif.find {|f| f.tag == "ImageHeight"}.raw
   end
-  
+
   def test_photos_getSizes
     info = flickr.photos.getSizes :photo_id => "3839885270"
     assert_equal "http://www.flickr.com/photos/41650587@N02/3839885270/sizes/l/", info.find {|f| f.label == "Large"}.url
     assert_equal "http://farm3.static.flickr.com/2485/3839885270_6fb8b54e06_b.jpg", info.find {|f| f.label == "Large"}.source
   end
-  
+
   def test_photos_search
     info = flickr.photos.search :user_id => "41650587@N02"
     photo info[0]
   end
-  
+
   # photos.comments
   def test_photos_comments_getList
     comments = flickr.photos.comments.getList :photo_id => "3839885270"
@@ -342,7 +342,7 @@ class Basic < Test::Unit::TestCase
     assert_equal "http://www.flickr.com/photos/41650587@N02/3839885270/#comment72157621986549875", comments[0].permalink
     assert_equal "This is a cute cat !", comments[0].to_s
   end
-  
+
   # tags
   def test_tags_getListPhoto
     tags = flickr.tags.getListPhoto :photo_id => "3839885270"
@@ -350,44 +350,44 @@ class Basic < Test::Unit::TestCase
     assert_equal "3839885270", tags.id
     assert_equal %w{cat pet}, tags.tags.map {|t| t.to_s}.sort
   end
-  
+
   def test_tags_getListUser
     tags =  flickr.tags.getListUser :user_id => "41650587@N02"
     assert_equal "41650587@N02", tags.id
     assert_equal %w{cat pet}, tags.tags.sort
   end
-  
+
   # urls
   def test_urls_getGroup
     info = flickr.urls.getGroup :group_id => "51035612836@N01"
     assert_equal "51035612836@N01", info.nsid
     assert_equal "http://www.flickr.com/groups/api/", info.url
   end
-  
+
   def test_urls_getUserPhotos
     info = flickr.urls.getUserPhotos :user_id => "41650587@N02"
     assert_equal "41650587@N02", info.nsid
     assert_equal "http://www.flickr.com/photos/41650587@N02/", info.url
   end
-  
+
   def test_urls_getUserProfile
     info = flickr.urls.getUserProfile :user_id => "41650587@N02"
     assert_equal "41650587@N02", info.nsid
     assert_equal "http://www.flickr.com/people/41650587@N02/", info.url
   end
-  
+
   def test_urls_lookupGroup
     info = flickr.urls.lookupGroup :url => "http://www.flickr.com/groups/api/"
     assert_equal "51035612836@N01", info.id
     assert_equal "Flickr API", info.groupname
   end
-  
+
   def test_urls_lookupUser
     info = flickr.urls.lookupUser :url => "http://www.flickr.com/photos/41650587@N02/"
     assert_equal "41650587@N02", info.id
     assert_equal "ruby_flickraw", info.username
   end
-  
+
   def test_urls
     id = "3839885270"
     info = flickr.photos.getInfo(:photo_id => id)
