@@ -5,8 +5,8 @@ require 'rake/gempackagetask'
 require 'rake/testtask'
 
 FlickRawOptions = {'lazyload' => true}
-require 'lib/flickraw'
-require 'flickraw_rdoc' if RUBY_VERSION >= "1.9"
+require File.join(%W[#{File.dirname(__FILE__)} lib flickraw])
+require File.join(%W[#{File.dirname(__FILE__)} flickraw_rdoc]) if RUBY_VERSION >= "1.9"
 
 PKG_FILES = FileList["lib/flickraw.rb", "flickraw_rdoc.rb", "LICENSE", "README.rdoc", "rakefile", "examples/*.rb", "test/*.rb"].to_a
 
@@ -43,7 +43,7 @@ file "flickraw-cached.rb" do |t|
   open(t.name, "w") {|f|
     f.puts %{FlickRawOptions = {'lazyload' => true}}
     f.puts %{require 'flickraw'}
-    f.puts %{FlickRaw::VERSION << '.#{Time.now.strftime("%Y%m%d")}-cached'} 
+    f.puts %{FlickRaw::VERSION << '.#{Time.now.strftime("%Y%m%d")}-cached'}
     f.puts 'ms = %w{' + flickr.reflection.getMethods.to_a.join(' ') + '}'
     f.puts %{FlickRaw::Flickr.build(ms)}
   }
